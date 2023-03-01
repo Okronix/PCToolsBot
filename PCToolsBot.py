@@ -1,21 +1,12 @@
-##########################################################################################################################
-########################      Автор не несёт ответсвенности за использование данного скрипта      ########################
-########################  Данный скрипт создан для упрощенного и защищенного управления СВОИМ ПК  ########################
-##########################################################################################################################
-
-
-
 import telebot
 import os
-import time
 import webbrowser
 import requests
 import platform
-import shutil
 import ctypes
 import mouse
 import PIL.ImageGrab
-from subprocess import Popen, PIPE
+import cv2
 from PIL import Image, ImageGrab, ImageDraw
 from pySmartDL import SmartDL
 from telebot import types
@@ -28,11 +19,10 @@ from telebot import apihelper
 #apihelper.proxy = {'https': 'socks5://proxy:port'}
 #apihelper.proxy = {'https': 'http://proxy:port'}
 
-bot_token = 'ваш_токен'
-bot = telebot.TeleBot(bot_token)
-my_id = ваш_telegram_id
 
-user_dict = {}
+my_id = 123456789
+bot_token = '1234567:ASDFGHJKLQWERTY'
+bot = telebot.TeleBot(bot_token)
 
 class User:
 	def __init__(self):
@@ -46,13 +36,16 @@ User.curs = 50
 
 ##Клавиатура меню
 menu_keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True,one_time_keyboard=False)
-btnscreen = types.KeyboardButton('📷Сделать скриншот')
+btnscreen = types.KeyboardButton('📷Быстрый скриншот')
+btnscreendoc = types.KeyboardButton('🖼Полный скриншот')
+btnwebcam = types.KeyboardButton('📹Фото вебкамеры')
 btnmouse = types.KeyboardButton('🖱Управление мышкой')
 btnfiles = types.KeyboardButton('📂Файлы и процессы')
 btnaddit = types.KeyboardButton('❇️Дополнительно')
 btnmsgbox = types.KeyboardButton('📩Отправка уведомления')
 btninfo = types.KeyboardButton('❗️Информация')
-menu_keyboard.row(btnscreen, btnmouse)
+menu_keyboard.row(btnscreen, btnscreendoc)
+menu_keyboard.row(btnwebcam, btnmouse)
 menu_keyboard.row(btnfiles, btnaddit)
 menu_keyboard.row(btninfo, btnmsgbox)
 
@@ -98,19 +91,6 @@ mouse_keyboard.row(btndown)
 mouse_keyboard.row(btnback, btncurs)
 
 
-
-logo = '''
-╭━━━┳━━━╮ ╭━━━━┳━━━┳━━━┳╮
-┃╭━╮┃╭━╮┃ ┃╭╮╭╮┃╭━╮┃╭━╮┃┃
-┃╰━╯┃┃╱╰╯ ╰╯┃┃╰┫┃╱┃┃┃╱┃┃┃
-┃╭━━┫┃╱╭╮ ╱╱┃┃╱┃┃╱┃┃┃╱┃┃┃╱╭╮
-┃┃╱╱┃╰━╯┃ ╱╱┃┃╱┃╰━╯┃╰━╯┃╰━╯┃
-╰╯╱╱╰━━━╯ ╱╱╰╯╱╰━━━┻━━━┻━━━╯
-by KiraGGG
-
-TG: @FRAMEDEV
-'''
-
 info_msg = '''
 *О командах*
 
@@ -134,42 +114,55 @@ _⬆️Загрузить файл_ - загружает файл на ваш к
 _🔗Загрузить по ссылке_ - загружает файл на ваш компьютер по прямой ссылке
 
 
-*Об авторе и репозитории с обновлениями бота*
-_Мой телеграм канал:_ @devFRAME
-_Старый телеграм канал:_ @FRAMEDEV (https://t.me/+VHwM4LtIRvXJIqol)
-_Репозиторий GitHub:_ [КЛИК](https://github.com/Okronix/PCToolsBot) [OLD](https://github.com/KiraGGG/PCToolsBot)
-_Поддержать автора:_ [КЛИК](https://donationalerts.com/r/kiraggg)
+*Телеграм канал разработчика:* [@devFRAME](https://t.me/+5SHcAW68EoZjN2Vi)
+*Репозиторий GitHub:* [КЛИК](https://github.com/Okronix/PCToolsBot)
+*Поддержать разработчика:* [КЛИК](https://pay.cloudtips.ru/p/105e5b0a)
 '''
 
 MessageBox = ctypes.windll.user32.MessageBoxW
 if os.path.exists("msg.pt"):
 	pass
 else:
-	bot.send_message(my_id, "Спасибо что выбрали данного Бота!\nСоветую сначала прочитать все в меню \"❗️Информация\"\n\n_Мой телеграм канал:_ @FRAMEDEV\n_Репозиторий GitHub:_ [КЛИК](https://github.com/kiraGGG/PCToolsBot)\n_Поддержать автора:_ [КЛИК](https://donationalerts.com/r/lgjegjp4ooke4e)", parse_mode = "markdown")
-	MessageBox(None, f'На вашем ПК запущена программа PC TOOL для управления компьютером\nДанное сообщения является разовым', '!ВНИМАНИЕ!', 0)
+	bot.send_message(my_id, "Спасибо, что выбрали данного Бота!\nСоветую сначала прочитать все в меню \"❗️Информация\"\n\n*Телеграм канал разработчика:* [@devFRAME](https://t.me/+5SHcAW68EoZjN2Vi)\n*Репозиторий GitHub:* [КЛИК](https://github.com/Okronix/PCToolsBot)\n*Поддержать разработчика:* [КЛИК](https://pay.cloudtips.ru/p/105e5b0a)", parse_mode = "markdown")
+	MessageBox(None, f'На вашем ПК запущена программа PC Tools Bot для управления компьютером\nДанное сообщения является разовым', '!ВНИМАНИЕ!', 0)
 	f = open('msg.pt', 'tw', encoding='utf-8')
 	f.close
-print(logo)
+
 bot.send_message(my_id, "ПК запущен", reply_markup = menu_keyboard)
 
 
 @bot.message_handler(content_types=["text"])
 def get_text_messages(message):
 	if message.from_user.id == my_id:
-		bot.send_chat_action(my_id, 'typing')
-		if message.text == "📷Сделать скриншот":
+		if message.text == "📷Быстрый скриншот":
 			bot.send_chat_action(my_id, 'upload_photo')
 			try:
-				currentMouseX, currentMouseY  =  mouse.get_position()
-				img = PIL.ImageGrab.grab()
-				img.save("screen.png", "png")
-				img = Image.open("screen.png")
-				draw = ImageDraw.Draw(img)
-				draw.polygon((currentMouseX, currentMouseY, currentMouseX, currentMouseY + 15, currentMouseX + 10, currentMouseY + 10), fill="white", outline="black")
-				img.save("screen_with_mouse.png", "PNG")
+				get_screenshot()
 				bot.send_photo(my_id, open("screen_with_mouse.png", "rb"))
 				os.remove("screen.png")
 				os.remove("screen_with_mouse.png")
+			except:
+				bot.send_message(my_id, "Компьютер заблокирован")
+		
+		elif message.text == "🖼Полный скриншот":
+			bot.send_chat_action(my_id, 'upload_document')
+			try:
+				get_screenshot()
+				bot.send_document(my_id, open("screen_with_mouse.png", "rb"))
+				os.remove("screen.png")
+				os.remove("screen_with_mouse.png")
+			except:
+				bot.send_message(my_id, "Компьютер заблокирован")
+
+		elif message.text == "📹Фото вебкамеры":
+			bot.send_chat_action(my_id, 'upload_photo')
+			try:
+				cap = cv2.VideoCapture(0)
+				ret, frame = cap.read()
+				cv2.imwrite('webcam.png', frame) 
+				cap.release()
+				bot.send_photo(my_id, open("webcam.png", "rb"))
+				os.remove("webcam.png")
 			except:
 				bot.send_message(my_id, "Компьютер заблокирован")
 				
@@ -197,7 +190,6 @@ def get_text_messages(message):
 
 		else:
 			pass
-
 	else:
 		info_user(message)
 
@@ -229,17 +221,13 @@ def addons_process(message):
 			uname = os.getlogin()
 			windows = platform.platform()
 			processor = platform.processor()
-			#print(*[line.decode('cp866', 'ignore') for line in Popen('tasklist', stdout=PIPE).stdout.readlines()])
 			bot.send_message(my_id, f"*Пользователь:* {uname}\n*IP:* {ip}\n*ОС:* {windows}\n*Процессор:* {processor}", parse_mode = "markdown")
-
 			bot.register_next_step_handler(message, addons_process)
 
 		elif message.text == "⏪Назад⏪":
 			back(message)
-		
 		else:
 			pass
-
 	else:
 		info_user(message)
 
@@ -269,7 +257,6 @@ def files_process(message):
 
 		elif message.text == "⏪Назад⏪":
 			back(message)
-
 		else:
 			pass
 	else:
@@ -309,7 +296,6 @@ def mouse_process(message):
 
 		elif message.text == "⏪Назад⏪":
 			back(message)
-
 		else:
 			pass
 	else:
@@ -322,7 +308,7 @@ def back(message):
 
 def info_user(message):
 	bot.send_chat_action(my_id, 'typing')
-	alert = f"Кто-то пытался задать команду: \"{message.text}\"\n\n"
+	alert = f"Кто-то пытался отправить команду: \"{message.text}\"\n\n"
 	alert += f"user id: {str(message.from_user.id)}\n"
 	alert += f"first name: {str(message.from_user.first_name)}\n"
 	alert += f"last name: {str(message.from_user.last_name)}\n" 
@@ -442,13 +428,7 @@ def mousecurs_settings(message):
 
 def screen_process(message):
 	try:
-		currentMouseX, currentMouseY  =  mouse.get_position()
-		img = PIL.ImageGrab.grab()
-		img.save("screen.png", "png")
-		img = Image.open("screen.png")
-		draw = ImageDraw.Draw(img)
-		draw.polygon((currentMouseX, currentMouseY, currentMouseX, currentMouseY + 15, currentMouseX + 10, currentMouseY + 10), fill="white", outline="black")
-		img.save("screen_with_mouse.png", "PNG")
+		get_screenshot()
 		bot.send_photo(my_id, open("screen_with_mouse.png", "rb"))
 		bot.register_next_step_handler(message, mouse_process)
 		os.remove("screen.png")
@@ -458,6 +438,14 @@ def screen_process(message):
 			bot.send_message(my_id, "Компьютер заблокирован")
 			bot.register_next_step_handler(message, mouse_process)
 	
+def get_screenshot():
+	currentMouseX, currentMouseY  =  mouse.get_position()
+	img = PIL.ImageGrab.grab()
+	img.save("screen.png", "png")
+	img = Image.open("screen.png")
+	draw = ImageDraw.Draw(img)
+	draw.polygon((currentMouseX, currentMouseY, currentMouseX, currentMouseY + 20, currentMouseX + 13, currentMouseY + 13), fill="white", outline="black")
+	img.save("screen_with_mouse.png", "PNG")
 
 def is_digit(string):
 	if string.isdigit():
@@ -470,9 +458,9 @@ def is_digit(string):
 			return False
 
 
-while True:
-	try:
-		bot.polling(none_stop=True, interval=0, timeout=20)
-	except Exception as E:
-		print(E.args)
-		time.sleep(2)
+#while True:
+#	try:
+bot.polling(none_stop=True, interval=0, timeout=20)
+#	except Exception as E:
+#		print(E.args)
+#		time.sleep(2)

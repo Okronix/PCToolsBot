@@ -2,4 +2,5 @@ pyTelegramBotAPI
 mouse
 Pillow
 pySmartDL
+opencv-python
 PyInstaller
