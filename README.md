@@ -70,7 +70,7 @@
 *19)* Перемещаем из папки dist exe-шник в удобну нам папку, создаем ярлык exe-шника<br/>
 *20)* Кидаем ярлык в папку автозагрузки C:\Users\Имя_Пользователя\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup<br/>
 
-## Ссылки
+## Автор
 - Телеграм канал автора: [@devFRAME](https://t.me/devFRAME) 
 - Старый телеграм канал: [FRAMEDEV](https://t.me/+VHwM4LtIRvXJIqol)
 
