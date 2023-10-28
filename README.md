@@ -73,6 +73,7 @@
 *20)* Кидаем ярлык в папку автозагрузки C:\Users\Имя_Пользователя\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup<br/>
 
 ## Разработчик
+- Web: [Okronix.ru](https://okronix.ru)
 - Телеграм канал: [@devFRAME](https://t.me/+BG1-5ebkjUVjYjNi)
 - Старый телеграм канал: [FRAMEDEV](https://t.me/+VHwM4LtIRvXJIqol)
 
