@@ -217,7 +217,7 @@ def addons_process(message):
 			bot.register_next_step_handler(message, addons_process)
 
 		elif message.text == "🖥О компьютере":
-			req = requests.get('http://ip.42.pl/raw')
+			req = requests.get('https://api.ipify.org')
 			ip = req.text
 			uname = os.getlogin()
 			windows = platform.platform()
